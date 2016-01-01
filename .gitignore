@@ -1,0 +1,85 @@
+# Unity3D .gitignore file.
+# See http://forum.unity3d.com/threads/141420-Unity-and-Git
+.DS_Store
+Output
+[Ll]ibrary/AssetImportState
+[Ll]ibrary/AssetServerCacheV3
+[Ll]ibrary/CurrentLayout.dwlt
+[Ll]ibrary/CurrentMaximizeLayout.dwlt
+[Ll]ibrary/InspectorExpandedItems.asset
+[Ll]ibrary/FailedAssetImports.txt
+[Ll]ibrary/ScriptAssemblies
+[Ll]ibrary/ScriptMapper
+[Ll]ibrary/ShaderCache
+[Ll]ibrary/assetDatabase3
+[Ll]ibrary/cache
+[Ll]ibrary/expandedItems
+[Ll]ibrary/metadata
+[Ll]ibrary/previews
+[Ll]ibrary/guidmapper
+[Tt]emp
+*.pidb
+[Bb]uild
+# Ignore which files open in IDE, etc.
+PredictiveAimingShared.userprefs
+Assets/Plugins/Android/obj/local*
+Assets/Plugins/Android/Classes
+Assets/Plugins/Android/libs/armeabi
+R.java*
+tags
+
+*.blend1*
+*.blend2*
+# Ignore FBX by default (can still be manually added) ?
+#*.fbx
+
+/_UpgradeReport_Files
+/[Oo]bj
+StyleCop.Cache
+
+Garden1.fbx*
+Race*.fbx*
+
+
+/Assets/Plugins/Android/jni/NUL
+test-results
+/UnitTestResults.xml
+
+# http://kleber-swf.com/the-definitive-gitignore-for-unity-projects/
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+[Ee]xported[Oo]bj/
+/*.userprefs
+/*.csproj
+/*.pidb
+/*.suo
+/*.sln*
+/*.user
+/*.unityproj
+/*.booproj
+/*.opensdf
+/*.sdf
+
+# UnityVS generated from .pdb files
+Unity/Assets/Plugins/*.mdb
+Unity/Assets/Plugins/*.mdb.meta
+
+# Unity crash handler generates
+Unity/sysinfo.txt
+ 
+# ============ #
+# OS generated #
+# ============ #
+.DS_Store*
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+[Tt]humbs.db
+
+/Library/shadercompiler-*.log
+/Library/CrashedAssetImports.txt
+/.vs/
+/Assets/CSharpatronWork/
