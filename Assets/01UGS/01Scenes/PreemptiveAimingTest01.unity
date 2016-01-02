@@ -449,7 +449,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &317074742
 Transform:
   m_ObjectHideFlags: 0
@@ -1945,6 +1945,10 @@ Prefab:
       propertyPath: useOwnPredictiveCode
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 11437560, guid: 35b6f4be7e796524e868afadab63128c, type: 2}
+      propertyPath: whichPredictiveCodeToUse
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 35b6f4be7e796524e868afadab63128c, type: 2}
   m_IsPrefabParent: 0
@@ -2146,7 +2150,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1677885772
 Transform:
   m_ObjectHideFlags: 0
@@ -2175,8 +2179,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timeout: 5
-  ignored: 1
-  succeedAfterAllAssertionsAreExecuted: 0
+  ignored: 0
+  succeedAfterAllAssertionsAreExecuted: 1
   expectException: 0
   expectedExceptionList: UnityTest.AssertionException
   succeedWhenExceptionIsThrown: 1
