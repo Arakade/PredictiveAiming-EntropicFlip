@@ -268,7 +268,7 @@ MonoBehaviour:
   compareToType: 1
   other: {fileID: 0}
   otherPropertyPath: 
-  constantValueGeneric: 3.63
+  constantValueGeneric: 6
   compareTypes: 1
   floatingPointError: 0.1
 --- !u!1001 &159215502
@@ -476,7 +476,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &317074742
 Transform:
   m_ObjectHideFlags: 0
@@ -528,7 +528,7 @@ MonoBehaviour:
   compareToType: 1
   other: {fileID: 0}
   otherPropertyPath: 
-  constantValueGeneric: 1.9
+  constantValueGeneric: 6
   compareTypes: 1
   floatingPointError: 0.1
 --- !u!114 &453552555
@@ -1173,7 +1173,7 @@ MonoBehaviour:
   compareToType: 1
   other: {fileID: 0}
   otherPropertyPath: 
-  constantValueGeneric: 3.63
+  constantValueGeneric: 6
   compareTypes: 1
   floatingPointError: 0.1
 --- !u!1 &836200656 stripped
@@ -2511,7 +2511,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1776631340
 Transform:
   m_ObjectHideFlags: 0
