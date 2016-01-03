@@ -47,14 +47,13 @@ class GameUtilities
 
 	//////////////////////////////////////////////////////////////////////////////
 	//returns true if a valid solution is possible
-	//projectileVelocity will be a non-normalized vector representing the initial velocity
+	//projectileVelocity will be a non-normalized vector representing the muzzle velocity of a lobbed projectile in 3D space
 	//if it returns false, projectileVelocity will be filled with a reasonable-looking attempt
 	//The reason we return true/false here instead of Vector3 is because you might want your AI to hold that shot until a solution exists
-	//of a lobbed projectile in 3D space
-	//meant to hit a target moving at constant velocity
+	//This is meant to hit a target moving at constant velocity
 	//Full derivation by Kain Shin exists here:
 	//http://www.gamasutra.com/blogs/KainShin/20090515/83954/Predictive_Aim_Mathematics_for_AI_Targeting.php
-	//gravity is assumed to be a positive number. It will be calculated in the downward direction
+	//gravity is assumed to be a positive number. It will be calculated in the downward direction, feel free to change that if you game takes place in Spaaaaaaaace
 	static public bool PredictiveAim(Vector3 muzzlePosition, float projectileSpeed, Vector3 targetPosition, Vector3 targetVelocity, float gravity, out Vector3 projectileVelocity)
 	{
 		Debug.Assert(projectileSpeed > 0, "What are you doing shooting at something with a projectile that doesn't move?");
