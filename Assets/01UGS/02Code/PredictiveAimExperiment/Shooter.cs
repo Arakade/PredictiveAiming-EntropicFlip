@@ -133,9 +133,13 @@ public class Shooter : MonoBehaviour {
 	{
 		if (Input.GetKeyDown(KeyCode.Space))
 		{
-			if (Time.timeScale > 0)
+			if (Time.timeScale > 0.99f)
 			{
 				Time.timeScale = 0;
+			}
+			else if (Time.timeScale < 0.01f)
+			{
+				Time.timeScale = 0.5f;
 			}
 			else
 			{
@@ -165,7 +169,7 @@ public class Shooter : MonoBehaviour {
 	static Rect s_infoRectShadow = new Rect(101, 101, 500, 500);
 	void OnGUI()
 	{
-		string msg = "Press [Space] to toggle pause";
+		string msg = "Press [Space] to cycle timescale (Current value: " + Time.timeScale.ToString("0.0") + ")";
 		if (m_lastProjectile)
 		{
 			msg += "\nTargetSpeedAtTimeOfCalculation: " + m_targetSpeedAtTimeOfCalculation.ToString();
