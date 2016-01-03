@@ -17,6 +17,7 @@ public class Shooter : MonoBehaviour {
 	private ForceMode shotForceMode = ForceMode.VelocityChange;
 
 	[SerializeField]
+	[Tooltip("This is not actually a force (mass * acceleration) as much as it is the constant velocity of the shot")]
 	private float shotForce = 1f;
 
 	[Tooltip("Which predictive aiming code to use.")]
@@ -34,7 +35,7 @@ public class Shooter : MonoBehaviour {
 	}
 
 	private Vector3 targetVelocity {
-		get { return targetXfrm.GetComponent<Rigidbody>().velocity; } // Assume it's a RB!
+		get { return m_targetUsesCharController ? targetXfrm.GetComponent<CharacterController>().velocity : targetXfrm.GetComponent<Rigidbody>().velocity; } // Supporth either CharController or RB!
 	}
 
 	private Vector3 ownVelocity {
@@ -71,7 +72,13 @@ public class Shooter : MonoBehaviour {
 
 			case PredictiveCodeToUse.Kain: {
 					Debug.LogFormat(this, "{0} shooting with Kain's code", this);
-					var aimVector = GameUtilities.PredictiveAim(bulletStartPos, shotForce, targetPos, targetVelocity, shotObeysGravity ? -Physics.gravity.y : 0f); // negate gravity since multiplied by Vector3.down
+					//Alteration from Kain for testing...
+					//ORIGINAL var aimVector = GameUtilities.PredictiveAim(bulletStartPos, shotForce, targetPos, targetVelocity, shotObeysGravity ? -Physics.gravity.y : 0f); // negate gravity since multiplied by Vector3.down
+					//Vector3 measuredTargetVelocity = targetVelocity.normalized * m_measuredSpeed;
+					m_targetSpeedAtTimeOfCalculation = targetVelocity.magnitude;
+					m_projectileSpeedAtTimeOfCalculation = shotForce;
+					var aimVector = GameUtilities.PredictiveAim(bulletStartPos, shotForce, targetPos, targetVelocity, shotObeysGravity ? -Physics.gravity.y : 0f, out m_lastPredictionFoundValidSolution); // negate gravity since multiplied by Vector3.down
+					//...Alteration from Kain for testing
 					return aimVector.isNaN() ? (Vector3?) null : aimVector;
 				}
 
@@ -87,9 +94,103 @@ public class Shooter : MonoBehaviour {
 		var shot = (Transform) Instantiate(shotPrefab, bulletStartPos, gunTip.rotation);
 		shot.parent = transform.parent; // same parent so tidied by integration tests
 		var shotRb = shot.GetComponent<Rigidbody>();
+
 		//var launchVector = shot.forward * shotForce;
 		var launchVector = aimVector;
+		
+		//Alteration from Kain...
 		shotRb.AddForce(launchVector, shotForceMode);
+		m_lastProjectile = shotRb;
+		m_lastProjectilePosition = bulletStartPos;
+		//...Alteration from Kain
 	}
 
+	//////////////////////////////////////////////////////////////////////////////
+	//Additions from Kain for observation purposes
+	//Sorry for the different formatting, my Visual studio settings are different from yours
+	//////////////////////////////////////////////////////////////////////////////
+	float m_targetSpeedAtTimeOfCalculation = -1;
+	float m_projectileSpeedAtTimeOfCalculation = -1;
+	float m_accumulatedTime = 0;
+
+	bool m_targetUsesCharController = false;
+	bool m_lastPredictionFoundValidSolution = true;
+
+	Rigidbody m_lastProjectile = null;
+	Vector3 m_lastProjectilePosition;
+	float m_measuredProjectileSpeed = 0;
+
+	//////////////////////////////////////////////////////////////////////////////
+	void Awake()
+	{
+		m_targetUsesCharController = (null != targetXfrm.GetComponent<CharacterController>());
+		m_accumulatedTime = 0;
+	}
+
+	//////////////////////////////////////////////////////////////////////////////
+	void Update()
+	{
+		if (Input.GetKeyDown(KeyCode.Space))
+		{
+			if (Time.timeScale > 0)
+			{
+				Time.timeScale = 0;
+			}
+			else
+			{
+				Time.timeScale = 1;
+			}
+			return;
+		}
+
+		float deltaTime = Time.deltaTime;
+		m_accumulatedTime += deltaTime;
+		if (deltaTime < Mathf.Epsilon)
+		{
+			//avoid div/0 or div/tinyNumber issues
+			return;
+		}
+
+		if (m_lastProjectile)
+		{
+			Vector3 currentPosition = m_lastProjectile.transform.position;
+			m_measuredProjectileSpeed = (currentPosition - m_lastProjectilePosition).magnitude / deltaTime;
+			m_lastProjectilePosition = currentPosition;
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////////
+	static Rect s_infoRect = new Rect(100, 100, 500, 500);
+	static Rect s_infoRectShadow = new Rect(101, 101, 500, 500);
+	void OnGUI()
+	{
+		string msg = "Press [Space] to toggle pause";
+		if (m_lastProjectile)
+		{
+			msg += "\nTargetSpeedAtTimeOfCalculation: " + m_targetSpeedAtTimeOfCalculation.ToString();
+			msg += "\nProjectileSpeedAtTimeOfCalculation: " + m_projectileSpeedAtTimeOfCalculation.ToString();
+			msg += "\nLastPredictionFoundValidSolution: " + m_lastPredictionFoundValidSolution.ToString();
+		}
+		else
+		{
+			msg += "\nAccumulatedTime: " + m_accumulatedTime.ToString();			
+		}
+		GUI.color = Color.black;
+		GUI.Label(s_infoRectShadow, msg);
+		GUI.color = Color.white;
+		GUI.Label(s_infoRect, msg);
+
+		Camera mainCam = Camera.main;
+
+		msg = "bulletStartPos";
+		DebuggingUtils.DrawTextInWorld(mainCam, bulletStartPos, msg, Color.red);
+
+		if (m_lastProjectile)
+		{
+			msg = "lastProjectile";
+			msg += "\nProjectileRigidBodySpeed: " + m_lastProjectile.velocity.magnitude.ToString();
+			msg += "\nProjectileMeasuredSpeed: " + m_measuredProjectileSpeed.ToString();
+			DebuggingUtils.DrawTextInWorld(mainCam, m_lastProjectile.transform.position, msg, Color.red);
+		}
+	}
 }

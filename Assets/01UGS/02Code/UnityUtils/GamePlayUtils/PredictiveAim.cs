@@ -52,8 +52,9 @@ class GameUtilities
 	//Full derivation by Kain Shin exists here:
 	//http://www.gamasutra.com/blogs/KainShin/20090515/83954/Predictive_Aim_Mathematics_for_AI_Targeting.php
 	//gravity is assumed to be a positive number. It will be calculated in the downward direction
-	static public Vector3 PredictiveAim(Vector3 muzzlePosition, float projectileSpeed, Vector3 targetPosition, Vector3 targetVelocity, float gravity)
+	static public Vector3 PredictiveAim(Vector3 muzzlePosition, float projectileSpeed, Vector3 targetPosition, Vector3 targetVelocity, float gravity, out bool validSolutionFound)
 	{
+		validSolutionFound = true;
 		Debug.Assert(projectileSpeed > 0, "What are you doing shooting at something with a projectile that doesn't move?");
 		if (muzzlePosition == targetPosition)
 		{
@@ -102,6 +103,7 @@ class GameUtilities
 			}
 			else
 			{
+				validSolutionFound = false;
 				t = PredictiveAimWildGuessAtImpactTime();
 			}
 		}
@@ -118,6 +120,7 @@ class GameUtilities
 			{
 				//Square root of a negative number is an imaginary number (NaN)
 				//Special thanks to Rupert Key (Twitter: @Arakade) for exposing NaN values that occur when target speed is faster than or equal to projectile speed
+				validSolutionFound = false;
 				t = PredictiveAimWildGuessAtImpactTime();
 			}
 			else
@@ -137,16 +140,39 @@ class GameUtilities
 				{
 					//Time can't flow backwards when it comes to aiming.
 					//No real solution was found, take a wild shot at the target's future location
+					validSolutionFound = false;
 					t = PredictiveAimWildGuessAtImpactTime();
 				}
 			}
 		}
 
 		//Vb = Vt - 0.5*Ab*t + [(Pti - Pbi) / t]
-		//By adding gravity as projectile acceleration, we are essentially breaking real world rules by saying that the projectile
-		// gets any upwards/downwards gravity compensation velocity for free, since the projectileSpeed passed in is a constant that assumes zero gravity
-		Vector3 projectileAcceleration = gravity * Vector3.down;
-		Vector3 Vb = targetVelocity - (0.5f * projectileAcceleration * t) + (-targetToMuzzle / t);
+		Vector3 Vb = targetVelocity + (-targetToMuzzle / t);
+		if (!validSolutionFound)
+		{
+			//PredictiveAimWildGuessAtImpactTime gives you a t that will not result in impact
+			// Which means that all that math that assumes projectileSpeed is enough to impact at time t breaks down
+			// In this case, we simply want the direction to shoot to make sure we
+			// don't break the gameplay rules of the cannon's capabilities aside from gravity compensation
+			Vb = projectileSpeed * Vb.normalized;
+		}
+
+		if (!Mathf.Approximately(gravity, 0))
+		{
+			//By adding gravity as projectile acceleration, we are essentially breaking real world rules by saying that the projectile
+			// gets any upwards/downwards gravity compensation velocity for free, since the projectileSpeed passed in is a constant that assumes zero gravity
+			Vector3 projectileAcceleration = gravity * Vector3.down;
+			//assuming gravity is a positive number, this next line will apply a free magical upwards lift to compensate for gravity
+			Vector3 gravityCompensation = (0.5f * projectileAcceleration * t);
+			//Let's cap gravityCompensation to avoid AIs that shoot infinitely high
+			float gravityCompensationCap = 0.5f * projectileSpeed;	//let's assume we won't lob higher than 50% of the canon's shot range
+			if (gravityCompensation.magnitude > gravityCompensationCap)
+			{
+				gravityCompensation = gravityCompensationCap * gravityCompensation.normalized;
+			}
+			Vb -= gravityCompensation;
+		}
+		
 		//FOR CHECKING ONLY (valid only if gravity is 0)...
 		//float calculatedprojectilespeed = Vb.magnitude;
 		//bool projectilespeedmatchesexpectations = (projectileSpeed == calculatedprojectilespeed);
