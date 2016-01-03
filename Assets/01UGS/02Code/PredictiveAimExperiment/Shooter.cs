@@ -64,6 +64,11 @@ public class Shooter : MonoBehaviour {
 	}
 
 	private Vector3? aimImpl() {
+		//Alteration from Kain for testing...
+		m_targetSpeedAtTimeOfCalculation = targetVelocity.magnitude;
+		m_projectileSpeedAtTimeOfCalculation = shotForce;
+		//...Alteration from Kain for testing
+
 		switch (whichPredictiveCodeToUse) {
 			case PredictiveCodeToUse.Rupert: {
 					var aimVector = ProjectileAimingUtils.getLaunchVector(targetPos, targetVelocity, bulletStartPos, shotForce, ownVelocity, shotObeysGravity ? Physics.gravity : (Vector3?) null);
@@ -74,9 +79,6 @@ public class Shooter : MonoBehaviour {
 					Debug.LogFormat(this, "{0} shooting with Kain's code", this);
 					//Alteration from Kain for testing...
 					//ORIGINAL var aimVector = GameUtilities.PredictiveAim(bulletStartPos, shotForce, targetPos, targetVelocity, shotObeysGravity ? -Physics.gravity.y : 0f); // negate gravity since multiplied by Vector3.down
-					//Vector3 measuredTargetVelocity = targetVelocity.normalized * m_measuredSpeed;
-					m_targetSpeedAtTimeOfCalculation = targetVelocity.magnitude;
-					m_projectileSpeedAtTimeOfCalculation = shotForce;
 					Vector3 aimVector;
 					m_lastPredictionFoundValidSolution = GameUtilities.PredictiveAim(bulletStartPos, shotForce, targetPos, targetVelocity, shotObeysGravity ? -Physics.gravity.y : 0f, out aimVector); // negate gravity since multiplied by Vector3.down
 					//...Alteration from Kain for testing
