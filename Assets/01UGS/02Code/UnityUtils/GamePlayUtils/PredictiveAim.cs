@@ -46,21 +46,24 @@ class GameUtilities
 	}
 
 	//////////////////////////////////////////////////////////////////////////////
-	//Return a non-normalized vector representing the initial velocity
+	//returns true if a valid solution is possible
+	//projectileVelocity will be a non-normalized vector representing the initial velocity
+	//if it returns false, projectileVelocity will be filled with a reasonable-looking attempt
+	//The reason we return true/false here instead of Vector3 is because you might want your AI to hold that shot until a solution exists
 	//of a lobbed projectile in 3D space
 	//meant to hit a target moving at constant velocity
 	//Full derivation by Kain Shin exists here:
 	//http://www.gamasutra.com/blogs/KainShin/20090515/83954/Predictive_Aim_Mathematics_for_AI_Targeting.php
 	//gravity is assumed to be a positive number. It will be calculated in the downward direction
-	static public Vector3 PredictiveAim(Vector3 muzzlePosition, float projectileSpeed, Vector3 targetPosition, Vector3 targetVelocity, float gravity, out bool validSolutionFound)
+	static public bool PredictiveAim(Vector3 muzzlePosition, float projectileSpeed, Vector3 targetPosition, Vector3 targetVelocity, float gravity, out Vector3 projectileVelocity)
 	{
-		validSolutionFound = true;
 		Debug.Assert(projectileSpeed > 0, "What are you doing shooting at something with a projectile that doesn't move?");
 		if (muzzlePosition == targetPosition)
 		{
 			//Why dost thou hate thyself so?
 			//Do something smart here. I dunno... whatever.
-			return projectileSpeed * (Random.rotation * Vector3.forward);
+			projectileVelocity = projectileSpeed * (Random.rotation * Vector3.forward);
+			return true;
 		}
 
 		//Much of this is geared towards reducing floating point precision errors
@@ -82,6 +85,7 @@ class GameUtilities
 		//C is distance traveled by projectile until impact (projectileSpeed * t)
 		float cosTheta = Vector3.Dot(targetToMuzzleDir, targetVelocityDir);
 
+		bool validSolutionFound = true;
 		float t;
 		if (Mathf.Approximately(projectileSpeedSq, targetSpeedSq))
 		{
@@ -147,14 +151,14 @@ class GameUtilities
 		}
 
 		//Vb = Vt - 0.5*Ab*t + [(Pti - Pbi) / t]
-		Vector3 Vb = targetVelocity + (-targetToMuzzle / t);
+		projectileVelocity = targetVelocity + (-targetToMuzzle / t);
 		if (!validSolutionFound)
 		{
 			//PredictiveAimWildGuessAtImpactTime gives you a t that will not result in impact
 			// Which means that all that math that assumes projectileSpeed is enough to impact at time t breaks down
 			// In this case, we simply want the direction to shoot to make sure we
 			// don't break the gameplay rules of the cannon's capabilities aside from gravity compensation
-			Vb = projectileSpeed * Vb.normalized;
+			projectileVelocity = projectileSpeed * projectileVelocity.normalized;
 		}
 
 		if (!Mathf.Approximately(gravity, 0))
@@ -165,18 +169,19 @@ class GameUtilities
 			//assuming gravity is a positive number, this next line will apply a free magical upwards lift to compensate for gravity
 			Vector3 gravityCompensation = (0.5f * projectileAcceleration * t);
 			//Let's cap gravityCompensation to avoid AIs that shoot infinitely high
-			float gravityCompensationCap = 0.5f * projectileSpeed;	//let's assume we won't lob higher than 50% of the canon's shot range
+			float gravityCompensationCap = 0.5f * projectileSpeed;  //let's assume we won't lob higher than 50% of the canon's shot range
 			if (gravityCompensation.magnitude > gravityCompensationCap)
 			{
 				gravityCompensation = gravityCompensationCap * gravityCompensation.normalized;
 			}
-			Vb -= gravityCompensation;
+			projectileVelocity -= gravityCompensation;
 		}
-		
+
 		//FOR CHECKING ONLY (valid only if gravity is 0)...
-		//float calculatedprojectilespeed = Vb.magnitude;
+		//float calculatedprojectilespeed = projectileVelocity.magnitude;
 		//bool projectilespeedmatchesexpectations = (projectileSpeed == calculatedprojectilespeed);
 		//...FOR CHECKING ONLY
-		return Vb;
+
+		return validSolutionFound;
 	}
 }

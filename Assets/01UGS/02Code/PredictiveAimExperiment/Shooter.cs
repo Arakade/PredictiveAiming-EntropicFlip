@@ -77,7 +77,8 @@ public class Shooter : MonoBehaviour {
 					//Vector3 measuredTargetVelocity = targetVelocity.normalized * m_measuredSpeed;
 					m_targetSpeedAtTimeOfCalculation = targetVelocity.magnitude;
 					m_projectileSpeedAtTimeOfCalculation = shotForce;
-					var aimVector = GameUtilities.PredictiveAim(bulletStartPos, shotForce, targetPos, targetVelocity, shotObeysGravity ? -Physics.gravity.y : 0f, out m_lastPredictionFoundValidSolution); // negate gravity since multiplied by Vector3.down
+					Vector3 aimVector;
+					m_lastPredictionFoundValidSolution = GameUtilities.PredictiveAim(bulletStartPos, shotForce, targetPos, targetVelocity, shotObeysGravity ? -Physics.gravity.y : 0f, out aimVector); // negate gravity since multiplied by Vector3.down
 					//...Alteration from Kain for testing
 					return aimVector.isNaN() ? (Vector3?) null : aimVector;
 				}
